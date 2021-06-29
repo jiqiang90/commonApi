@@ -1,0 +1,120 @@
+type Block @entity {
+
+  id: ID! #BlockHeight
+
+  hash: String! @index
+
+}
+
+type Event @entity {
+
+  id: ID! #BlockHeight + EventId
+
+  module: String! @index
+
+  event: String!
+
+  blockHeight: Block
+
+  extrinsicHash: Extrinsic
+
+}
+
+type Extrinsic @entity {
+
+  id: ID!
+
+  module: String! @index
+
+  call: String!
+
+  blockHeight: Block
+
+  success: Boolean!
+
+  isSigned: Boolean!
+
+}
+
+type Account @entity {
+
+  id: ID! #address
+
+  accountDetail: [AccountDetail]
+
+}
+
+type AccountDetail @jsonField {
+  display: String
+  legal: String
+  web: String
+  riot: String
+  email: String
+  image: String
+  twitter: String
+}
+
+type Transfer @entity {
+
+  id: ID! #BLOCK+EVENT_ID
+
+  amount: BigInt
+
+  to: Account!
+
+  from: Account!
+
+  extrinsic: Extrinsic!
+}
+
+type StakingBond @entity{
+
+  id: ID!
+
+  address: Account!
+
+  balance: BigInt!
+
+  date: Date!
+
+  extrinsic: Extrinsic!
+}
+
+
+type StakingReward @entity{
+
+  id: ID!
+
+  address: Account!
+
+  balance: BigInt!
+
+  date: Date!
+
+  extrinsic: Extrinsic!
+}
+
+
+type StakingSlash @entity{
+
+  id: ID! # AccountId
+
+  address: Account!
+
+  balance: BigInt!
+
+  date: Date!
+
+  extrinsic: Extrinsic!
+}
+
+type StakingEraPayout @entity {
+
+  id: ID! #EraIndex
+
+  blockHeight: Block,
+
+  extrinsic: Extrinsic!
+
+}
+
