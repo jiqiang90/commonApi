@@ -4,6 +4,12 @@ type Block @entity {
 
   hash: String! @index
 
+  timestamp: Date!
+
+  events: [Event] @derivedFrom(field: "block")
+
+  extrinsics: [Extrinsic]! @derivedFrom(field: "block")
+
 }
 
 type Event @entity {
@@ -14,9 +20,11 @@ type Event @entity {
 
   event: String!
 
-  blockHeight: Block
+  block: Block!
 
-  extrinsicHash: Extrinsic
+  extrinsic: Extrinsic
+
+  timestamp: Date!
 
 }
 
@@ -28,11 +36,31 @@ type Extrinsic @entity {
 
   call: String!
 
-  blockHeight: Block
+  block: Block
 
   success: Boolean!
 
   isSigned: Boolean!
+
+  nonce: Int!
+
+  signature: String!
+
+  parameters: JSON!
+
+  sender: String!
+
+  fee: BigInt!
+
+  tip: BigInt!
+
+  lifeTime: [BigInt]
+
+  version: Int!
+
+  signedExtension: JSON
+
+  timestamp: Date!
 
 }
 
@@ -40,11 +68,42 @@ type Account @entity {
 
   id: ID! #address
 
-  accountDetail: [AccountDetail]
+  pubkey: String! @index
+
+  identity: Identity
+
+  balances: [Balance]!
+
+  nonce: Int
 
 }
 
-type AccountDetail @jsonField {
+type Balance @entity {
+
+  id: ID! #account_id[-asset_id]
+
+  asset: Asset
+
+  reservedAmount: BigInt!
+
+  transferableAmount: BigInt!
+
+  locked: JSON
+
+}
+
+type Asset @entity {
+  id: ID!
+
+  symbol: String!
+
+  decimal: Int!
+
+  totalIssuance: BigInt!
+}
+
+#TODO sub identity
+type Identity @jsonField {
   display: String
   legal: String
   web: String
@@ -60,61 +119,32 @@ type Transfer @entity {
 
   amount: BigInt
 
+  asset: Asset
+
   to: Account!
 
   from: Account!
 
-  extrinsic: Extrinsic!
+  event: Event!
 }
 
-type StakingBond @entity{
-
-  id: ID!
-
-  address: Account!
-
-  balance: BigInt!
-
-  date: Date!
-
-  extrinsic: Extrinsic!
-}
-
-
-type StakingReward @entity{
-
-  id: ID!
-
-  address: Account!
-
-  balance: BigInt!
-
-  date: Date!
-
-  extrinsic: Extrinsic!
-}
-
-
-type StakingSlash @entity{
-
-  id: ID! # AccountId
-
-  address: Account!
-
-  balance: BigInt!
-
-  date: Date!
-
-  extrinsic: Extrinsic!
-}
-
-type StakingEraPayout @entity {
+type Era @entity{
 
   id: ID! #EraIndex
 
-  blockHeight: Block,
-
-  extrinsic: Extrinsic!
-
+  block: Block!
 }
 
+type Epoch @entity{
+
+  id: ID! #Epoch_id
+
+  block: Block!
+}
+
+type Session @entity{
+
+  id: ID! #session_id
+
+  block: Block!
+}
