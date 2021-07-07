@@ -8,7 +8,7 @@ type Block @entity {
 
   events: [Event] @derivedFrom(field: "block")
 
-  extrinsics: [Extrinsic]! @derivedFrom(field: "block")
+  extrinsics: [ExtrinsicV4]! @derivedFrom(field: "block")
 
 }
 
@@ -22,13 +22,13 @@ type Event @entity {
 
   block: Block!
 
-  extrinsic: Extrinsic
+  extrinsic: ExtrinsicV4
 
   timestamp: Date!
 
 }
 
-type Extrinsic @entity {
+type ExtrinsicV4 @entity {
 
   id: ID!
 
@@ -46,7 +46,8 @@ type Extrinsic @entity {
 
   signature: String!
 
-  parameters: JSON!
+#  parameters: JSON!
+  parameters: String!
 
   sender: String!
 
@@ -54,11 +55,12 @@ type Extrinsic @entity {
 
   tip: BigInt!
 
-  lifeTime: [BigInt]
+  lifeTime: [Int]
 
   version: Int!
 
-  signedExtension: JSON
+#  signedExtension: JSONs
+  extension: String
 
   timestamp: Date!
 
@@ -68,34 +70,43 @@ type Account @entity {
 
   id: ID! #address
 
-  pubkey: String! @index
+  pubKey: String! @index
 
   identity: Identity
 
-  balances: [Balance]!
+  balances: [AccountBalance]! #derivedFrom ....
 
   nonce: Int
 
 }
 
-type Balance @entity {
+type AccountBalance @entity {
 
   id: ID! #account_id[-asset_id]
 
-  asset: Asset
+  asset: Asset!
+
+  accout: Account!
+
+  freeAmount: BigInt!
 
   reservedAmount: BigInt!
 
-  transferableAmount: BigInt!
+#  locked: JSON
+  locked: [LockedBalance]
 
-  locked: JSON
+}
 
+type LockedBalance @jsonField {
+  id: String # LockIdentifier eg. 0x7374616b696e6720 = 'staking'
+  amount: BigInt!
+  reasons: String
 }
 
 type Asset @entity {
   id: ID!
 
-  symbol: String!
+  symbol: String! @index
 
   decimal: Int!
 
